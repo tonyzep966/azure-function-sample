@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "azure_function_sample": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7206",
+      "launchBrowser": false
+    }
+  }
+}
