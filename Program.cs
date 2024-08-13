@@ -1,9 +1,7 @@
 using azure_function_sample.Mappers;
 using azure_function_sample.Middlewares;
 using azure_function_sample.Services;
-using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.Azure.Functions.Worker;
-using Microsoft.Azure.Functions.Worker.Extensions.OpenApi.Extensions;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -20,9 +18,10 @@ var host = new HostBuilder()
         services.AddApplicationInsightsTelemetryWorkerService();
         services.ConfigureFunctionsApplicationInsights();
         services.AddAutoMapper(typeof(AutoMapperProfile));
-        services.AddHttpClient<IDataFetchService>((serviceProvider, client) =>
+        services.AddTransient<IWeatherService, WeatherService>();
+        services.AddHttpClient<IWeatherService, WeatherService>((serviceProvider, client) =>
         {
-            // TODO
+            client.Timeout = TimeSpan.FromSeconds(10);
         }).ConfigurePrimaryHttpMessageHandler(() => new SocketsHttpHandler
         {
             //This is infinite by default

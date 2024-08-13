@@ -2,7 +2,7 @@
 
 namespace azure_function_sample.ValueObjects
 {
-    public class TimeApiResponseModel
+    public class TimeApiResponse
     {
         [JsonPropertyName("year")]
         public int Year { get; set; }
