@@ -1,6 +1,8 @@
 ﻿using Microsoft.Azure.Functions.Worker;
+using Microsoft.Azure.Functions.Worker.Http;
 using Microsoft.Azure.Functions.Worker.Middleware;
 using Microsoft.Extensions.Logging;
+using System.Net;
 
 namespace azure_function_sample.Middlewares
 {
@@ -17,7 +19,12 @@ namespace azure_function_sample.Middlewares
             catch (Exception ex)
             {
                 var log = context.GetLogger<ExceptionLoggingMiddleware>();
-                log.LogWarning(ex, string.Empty);
+                log.LogError(ex.Message);
+                
+                var request = await context.GetHttpRequestDataAsync();
+                var response = request!.CreateResponse();
+                await response.WriteAsJsonAsync(new { error = ex.Message }, HttpStatusCode.InternalServerError);
+                context.GetInvocationResult().Value = response;
             }
         }
     }
