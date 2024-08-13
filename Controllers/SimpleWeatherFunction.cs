@@ -1,9 +1,14 @@
 using azure_function_sample.Services;
+using azure_function_sample.ValueObjects;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Azure.WebJobs.Extensions.Http;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Enums;
 using Microsoft.Extensions.Logging;
+using Microsoft.OpenApi.Models;
+using System.Net;
 
 namespace azure_function_sample.Controllers
 {
@@ -19,6 +24,12 @@ namespace azure_function_sample.Controllers
         }
 
         [Function("weather")]
+        [OpenApiSecurity("function_key", SecuritySchemeType.ApiKey, Name = "x-functions-key", In = OpenApiSecurityLocationType.Header, Description = "API key needed to access the API")]
+        [OpenApiOperation(operationId: "Run", tags: ["weather"], Summary = "Get weather by address", Description = "This endpoint returns weather information by address.", Visibility = OpenApiVisibilityType.Important)]
+        [OpenApiParameter(name: "address", In = ParameterLocation.Query, Required = true, Type = typeof(string), Summary = "Address", Description = "The address to get weather information.")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(OpenMeteoApiResponse), Summary = "Successful operation", Description = "The weather information.")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.BadRequest, contentType: "application/json", bodyType: typeof(object), Summary = "Bad request", Description = "Address is required.")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.InternalServerError, contentType: "application/json", bodyType: typeof(object), Summary = "Internal server error", Description = "An error occurred while processing the request.")]
         public async Task<IActionResult> Run([HttpTrigger(Microsoft.Azure.Functions.Worker.AuthorizationLevel.Function, "get")] HttpRequest req)
         {
             _logger.LogInformation("-------------------------------------");
